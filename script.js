@@ -177,7 +177,7 @@ $("#tiles").innerHTML = [["about", "Who we are", "What the club stands for."], [
 $("#focusList").innerHTML = focus.map(f => `<article><h3><span class="ico">${ic(f[0])}</span>${f[1]}</h3><p>${f[2]}</p></article>`).join("");
 const ini = n => n.split(" ").filter(w => /^[A-Za-z]/.test(w)).slice(0, 2).map(w => w[0]).join("").toUpperCase();
 const RANK = ["Moderator", "Chief Executive", "Executive", "President", "General Secretary", "Vice President", "Joint Secretary", "Assistant Joint Secretary", "Membership Secretary", "Treasurer", "Publication Secretary", "Public Relation Secretary", "Event Management Secretary", "Sergeant at arms", "Facilitator"];
-const rank = p => { const i = RANK.indexOf(p); return i < 0 ? 50 : i; };
+const rank = p => { let i = RANK.indexOf(p); if (i < 0 && /^chief executive/i.test(String(p))) i = RANK.indexOf("Chief Executive"); return i < 0 ? 50 : i; };
 const byRank = (a, b) => rank(a.post) - rank(b.post) || String(a.name).localeCompare(b.name);
 const defaults = () => [...CONFIG.panelists.map(p => ({ ...p, pop: true })), { id: "moderator", pid: "MOD", name: CONFIG.moderator, post: "Moderator", pop: true }];
 const committeeList = () => { const c = db.get("committee"); return c.length ? c : defaults(); };
@@ -544,7 +544,7 @@ const amt = r => parseFloat(String(r.amount || "").replace(/[^\d.]/g, "")) || 0;
 const taka = n => "৳" + Math.round(n).toLocaleString("en-US");
 const todayStr = () => new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
 const byName = (a, b) => String(a.name).localeCompare(String(b.name));
-const grp = p => p.group || (p.post === "Moderator" ? "teacher" : /^(chief )?executive$/i.test(p.post) ? "executive" : "organizer");
+const grp = p => p.group || (p.post === "Moderator" ? "teacher" : /^(chief )?executive/i.test(p.post) ? "executive" : "organizer");
 const GORD = { teacher: 0, executive: 1, organizer: 2 };
 const GNAME = { teacher: "Teacher", executive: "Executive", organizer: "Organizer" };
 
