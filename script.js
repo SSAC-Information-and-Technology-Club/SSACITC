@@ -177,7 +177,7 @@ $("#tiles").innerHTML = [["about", "Who we are", "What the club stands for."], [
 $("#focusList").innerHTML = focus.map(f => `<article><h3><span class="ico">${ic(f[0])}</span>${f[1]}</h3><p>${f[2]}</p></article>`).join("");
 const ini = n => n.split(" ").filter(w => /^[A-Za-z]/.test(w)).slice(0, 2).map(w => w[0]).join("").toUpperCase();
 const RANK = ["Moderator", "Chief Executive", "Executive", "President", "General Secretary", "Vice President", "Joint Secretary", "Assistant Joint Secretary", "Membership Secretary", "Treasurer", "Publication Secretary", "Public Relation Secretary", "Event Management Secretary", "Sergeant at arms", "Facilitator"];
-const rank = p => { let i = RANK.indexOf(p); if (i < 0 && /^chief executive/i.test(String(p))) i = RANK.indexOf("Chief Executive"); return i < 0 ? 50 : i; };
+const rank = p => { p = String(p || "").trim(); let i = RANK.indexOf(p); if (i < 0 && /chief\s*executive/i.test(p)) i = RANK.indexOf("Chief Executive"); return i < 0 ? 50 : i; };
 const byRank = (a, b) => rank(a.post) - rank(b.post) || String(a.name).localeCompare(b.name);
 const defaults = () => [...CONFIG.panelists.map(p => ({ ...p, pop: true })), { id: "moderator", pid: "MOD", name: CONFIG.moderator, post: "Moderator", pop: true }];
 const committeeList = () => { const c = db.get("committee"); return c.length ? c : defaults(); };
