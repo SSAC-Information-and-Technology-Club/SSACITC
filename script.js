@@ -747,12 +747,12 @@ R["p-fees"] = pg => {
   const sum = f => recs.filter(f).reduce((s, r) => s + amt(r), 0);
   pg.innerHTML = `<header class="ph"><h2>Fees</h2><p class="lead">Choose a month, set Due or Paid for each member and save. Leave “—” if no fee applies.</p></header>
   <div class="stats"><div><b>${taka(sum(r => r.paid))}</b><span>Collected</span></div><div><b>${taka(sum(r => !r.paid))}</b><span>Still due</span></div><div><b>${recs.filter(r => r.paid).length}/${recs.length}</b><span>Paid</span></div></div>
-  <form id="fF" class="panel form"><div class="two"><label>Month<input type="month" name="month" value="${feMonth}" required></label><label>Department${deptSel(feDept, "dept")}</label></div><label>Default amount (৳)<input name="amount" inputmode="numeric" maxlength="10" placeholder="e.g. 50"></label>
+  <form id="feeF" class="panel form"><div class="two"><label>Month<input type="month" name="month" value="${feMonth}" required></label><label>Department${deptSel(feDept, "dept")}</label></div><label>Default amount (৳)<input name="amount" inputmode="numeric" maxlength="10" placeholder="e.g. 50"></label>
   ${ms.map(m => { const c = cur(m.id), st = c ? (c.paid ? "paid" : "due") : ""; return `<div class="row2"><span><b>${esc(m.name)}</b><br><small class="muted">ID ${esc(m.sid)} · Class ${esc(m.cls)}</small></span><span class="seg"><select name="f_${esc(m.id)}"><option value="">—</option><option value="due" ${st === "due" ? "selected" : ""}>Due</option><option value="paid" ${st === "paid" ? "selected" : ""}>Paid</option></select><input class="sc" name="a_${esc(m.id)}" maxlength="10" inputmode="numeric" value="${esc(c ? c.amount : "")}" placeholder="amount"></span></div>`; }).join("") || '<p class="muted">No members found.</p>'}
   <button class="btn primary">Save fees</button></form>`;
   $("[name=month]", pg).onchange = e => { feMonth = e.target.value || todayStr().slice(0, 7); R["p-fees"](pg); };
   $("[name=dept]", pg).onchange = e => { feDept = e.target.value; R["p-fees"](pg); };
-  $("#fF").onsubmit = e => {
+  $("#feeF").onsubmit = e => {
     e.preventDefault(); const fd = new FormData(e.target), L = db.get("records"), me = curP();
     ms.forEach(m => {
       const st = fd.get("f_" + m.id), ex = cur(m.id), a = String(fd.get("a_" + m.id) || fd.get("amount") || "").trim(), i0 = ex ? L.findIndex(x => x.id === ex.id) : -1;
