@@ -164,6 +164,7 @@ const P = {
   send: '<path d="m22 2-11 11M22 2l-7 20-4-9-9-4z"/>', camera: '<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/>',
   search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>', logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>'
 };
+P.caret = '<path d="m6 9 6 6 6-6"/>';
 P.dots = '<circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/>';
 Object.assign(P, { check: '<path d="M20 6 9 17l-5-5"/>', cash: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>', help: '<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/>', video: '<path d="m22 8-6 4 6 4z"/><rect x="2" y="6" width="14" height="12" rx="2"/>', trophy: '<path d="M6 9H4a2 2 0 0 1-2-2V5h4M18 9h2a2 2 0 0 0 2-2V5h-4M6 3h12v6a6 6 0 0 1-12 0zM12 15v4M8 21h8"/>' });
 const ic = n => `<svg class="i" viewBox="0 0 24 24">${P[n] || ""}</svg>`;
@@ -175,7 +176,7 @@ const focus = [["brain", "AI", "Explore how intelligent tools work and experimen
 $("#tiles").innerHTML = [["about", "Who we are", "What the club stands for."], ["events", "What we do", "Workshops, builds and talks."], ["join", "Join us", "Register and become a member."]].map(t => `<a href="#${t[0]}"><h3>${t[1]}</h3><p>${t[2]}</p>${ic("arrow")}</a>`).join("");
 $("#focusList").innerHTML = focus.map(f => `<article><h3><span class="ico">${ic(f[0])}</span>${f[1]}</h3><p>${f[2]}</p></article>`).join("");
 const ini = n => n.split(" ").filter(w => /^[A-Za-z]/.test(w)).slice(0, 2).map(w => w[0]).join("").toUpperCase();
-const RANK = ["President", "General Secretary", "Vice President", "Joint Secretary", "Assistant Joint Secretary", "Membership Secretary", "Treasurer", "Publication Secretary", "Public Relation Secretary", "Event Management Secretary", "Sergeant at arms", "Facilitator", "Executive", "Moderator"];
+const RANK = ["Moderator", "Chief Executive", "Executive", "President", "General Secretary", "Vice President", "Joint Secretary", "Assistant Joint Secretary", "Membership Secretary", "Treasurer", "Publication Secretary", "Public Relation Secretary", "Event Management Secretary", "Sergeant at arms", "Facilitator"];
 const rank = p => { const i = RANK.indexOf(p); return i < 0 ? 50 : i; };
 const byRank = (a, b) => rank(a.post) - rank(b.post) || String(a.name).localeCompare(b.name);
 const defaults = () => [...CONFIG.panelists.map(p => ({ ...p, pop: true })), { id: "moderator", pid: "MOD", name: CONFIG.moderator, post: "Moderator", pop: true }];
@@ -543,21 +544,22 @@ const amt = r => parseFloat(String(r.amount || "").replace(/[^\d.]/g, "")) || 0;
 const taka = n => "৳" + Math.round(n).toLocaleString("en-US");
 const todayStr = () => new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
 const byName = (a, b) => String(a.name).localeCompare(String(b.name));
-const grp = p => p.group || (p.post === "Moderator" ? "teacher" : p.post === "Executive" ? "executive" : "organizer");
+const grp = p => p.group || (p.post === "Moderator" ? "teacher" : /^(chief )?executive$/i.test(p.post) ? "executive" : "organizer");
 const GORD = { teacher: 0, executive: 1, organizer: 2 };
 const GNAME = { teacher: "Teacher", executive: "Executive", organizer: "Organizer" };
 
 // ---------- community: teachers, executives, organizers ----------
-R.committee = () => {
-  const all = committeeList().slice().sort(byRank), by = g => all.filter(p => grp(p) === g);
-  const card = (z, d, term) => p => `<div class="mem card s${z}">${popPh(p, d, true)}<h3>${esc(p.name)}</h3><p>${esc(p.post)}</p>${term && p.term ? `<small class="term">${esc(p.term)}</small>` : ""}</div>`;
-  const T = by("teacher"), E = by("executive"), O = by("organizer"), cur = O.filter(p => !p.old), old = O.filter(p => p.old);
-  const pres = cur.filter(p => p.post === "President"), gs = cur.filter(p => p.post === "General Secretary"), rest = cur.filter(p => p.post !== "President" && p.post !== "General Secretary");
-  $("#comList").innerHTML = `<h3 class="ptitle">Teachers</h3>${T.length ? `<div class="c3">${T.map(card(88, 84)).join("")}</div>` : '<p class="muted">Teachers (moderators) will be added soon.</p>'}
-  <h3 class="ptitle">Executive</h3>${E.length ? `<div class="c3">${E.map(card(88, 84)).join("")}</div>` : '<p class="muted">Executives will be added soon.</p>'}
-  <h3 class="ptitle">Organizers · Current panel</h3><div class="c1">${pres.map(card(170, 120, 1)).join("")}</div><div class="c2">${gs.map(card(124, 104, 1)).join("")}</div><div class="c3">${rest.map(card(88, 84, 1)).join("")}</div>${cur.length ? "" : '<p class="muted">The current panel will be added soon.</p>'}
-  <h3 class="ptitle">Organizers · Old panel</h3>${old.length ? `<div class="c3 old">${old.map(card(88, 84, 1)).join("")}</div>` : '<p class="muted">Past panelists will be added here.</p>'}`;
+const bigCard = p => `<div class="pcard">${popPh(p, 210, true)}<h3>${esc(p.name)}</h3><span class="role">${esc(p.post)}</span>${p.term ? `<small class="term">${esc(p.term)}</small>` : ""}</div>`;
+const panelPage = (pg, title, lead, groups) => {
+  const all = committeeList().slice().sort(byRank).filter(p => groups.includes(grp(p)));
+  const cur = all.filter(p => !p.old), old = all.filter(p => p.old), grid = (L, c) => `<div class="pgrid${c ? " old" : ""}">${L.map(bigCard).join("")}</div>`;
+  pg.innerHTML = `<header class="ph"><h2>${title}</h2><p class="lead">${lead}</p></header>` + (all.length
+    ? (cur.length ? grid(cur) : "") + (old.length ? `<h3 class="ptitle">Old panel</h3>${grid(old, 1)}` : "")
+    : '<p class="muted">Members will be added here soon.</p>');
 };
+R.teachers = pg => panelPage(pg, "Teachers’ Panel", "Our teachers and moderators.", ["teacher"]);
+R.executive = pg => panelPage(pg, "Executive Panel", "Our executives and chief executive.", ["executive"]);
+R.organizing = pg => panelPage(pg, "Organizing Panel", "The organizers who run SSACITC.", ["organizer"]);
 R["p-committee"] = pg => {
   const C = db.get("committee").sort((a, b) => (GORD[grp(a)] - GORD[grp(b)]) || (!!a.old - !!b.old) || byRank(a, b)), S = db.get("staff"), sf = id => S.find(x => x.cid === id) || {};
   const form = p => { const g = p ? grp(p) : "organizer", pm = p ? (sf(p.id).perms || (g === "organizer" ? PERM_DEF[p.post] || [] : [])) : [];
@@ -788,7 +790,7 @@ const tabs = { m: [["m-home", "Home"], ["m-attend", "Attendance"], ["m-fees", "F
 const menuFor = r => r === "m" ? tabs.m : PTABS.filter(t => !t[2] || (t[2] === "admin" ? authState.admin : t[2].some(can)));
 const bn = [["m-home", "home", "Home"], ["m-attend", "check", "Attend"], ["m-fees", "cash", "Fees"], ["m-feed", "feed", "Feed"], ["m-profile", "user", "Profile"]];
 function route() {
-  let id = decodeURIComponent(location.hash.slice(1)) || "home"; const s = session();
+  let id = decodeURIComponent(location.hash.slice(1)) || "home"; const s = session(); if (id === "committee") id = "organizing";
   if (/^[mp]-/.test(id) && (!s || s.role !== id[0])) return go(s ? s.role + "-home" : "login");
   if (id === "p-committee" && !authState.admin) return go(s ? "p-home" : "login");
   if (PGP[id] && !PGP[id].some(can)) return go("p-home");
@@ -805,13 +807,16 @@ function route() {
   $("#kebab").hidden = !app; $("#kmenu").hidden = true;
   if (app) $("#kmenu").innerHTML = menuFor(s.role).map(b => `<a href="#${b[0]}" class="${b[0] === id ? "on" : ""}">${b[1]}${b[0] === "p-requests" && pend ? `<b>${pend}</b>` : ""}</a>`).join("") + `<button id="kout">Log out</button>`;
   $("#acts").innerHTML = s ? `<a href="#${s.role}-home">My account</a>` : (regOpen() ? `<a href="#register">Registration</a>` : "") + `<a href="#login">Log in</a>`;
-  $$("#nav>a").forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + id));
+  $$("#nav a").forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + id));
+  $("#dd").classList.remove("open"); $("#ddb").setAttribute("aria-expanded", "false");
+  $("#ddb").classList.toggle("on", ["teachers", "executive", "organizing"].includes(id));
   $("#nav").classList.remove("open"); window.scrollTo(0, 0);
 }
 $("#backBtn").onclick = () => { stack.pop(); const s = session(); go(stack.pop() || (s ? s.role + "-home" : "home")); };
+$("#ddb").onclick = e => { e.stopPropagation(); const o = $("#dd").classList.toggle("open"); $("#ddb").setAttribute("aria-expanded", o); };
 $("#kebab").onclick = e => { e.stopPropagation(); const k = $("#kmenu"); k.hidden = !k.hidden; };
 $("#kmenu").onclick = e => { if (e.target.id === "kout") logout(); };
-document.addEventListener("click", () => { $("#kmenu").hidden = true; });
+document.addEventListener("click", e => { $("#kmenu").hidden = true; if (!e.target.closest("#dd")) { $("#dd").classList.remove("open"); $("#ddb").setAttribute("aria-expanded", "false"); } });
 addEventListener("hashchange", () => { if (authState.ready) route(); });
 
 // ---------- live data + sign-in state ----------
@@ -819,7 +824,7 @@ let unsubs = [];
 const sub = (k, q) => unsubs.push(onSnapshot(q, snap => { cache[k] = snap.docs.map(d => ({ ...d.data(), id: d.id })); refresh(); }, e => console.warn(k, e.code)));
 const subStaff = () => { sub("members", collection(fs, "members")); if (can("members")) sub("roster", collection(fs, "roster")); sub("notices", collection(fs, "notices")); sub("formal", collection(fs, "formal")); sub("notifs", query(collection(fs, "notifs"), where("to", "==", "p"))); sub("records", collection(fs, "records")); sub("dposts", collection(fs, "dposts")); if (can("qa")) sub("qall", collection(fs, "questions")); };
 PUB.forEach(k => onSnapshot(k === "qa" ? query(collection(fs, "questions"), where("answered", "==", true)) : collection(fs, k), snap => { cache[k] = snap.docs.map(d => ({ ...d.data(), id: d.id })); if (k === "settings") { const a = $("main>section.active"); if (a && a.id === "register" && regShown !== regOpen()) R.register(a); } refresh(); }, e => console.warn(k, e.code)));
-const LIVE = ["home", "committee", "gallery", "p-home", "m-home", "m-profile", "m-feed", "p-feed", "m-notices", "notices", "p-requests", "p-roster", "p-members", "p-me", "ranking", "m-dept", "m-record", "p-depts", "p-member", "p-record", "contact", "projects", "p-qa", "m-attend", "m-fees", "p-videos", "p-projects"];
+const LIVE = ["home", "teachers", "executive", "organizing", "gallery", "p-home", "m-home", "m-profile", "m-feed", "p-feed", "m-notices", "notices", "p-requests", "p-roster", "p-members", "p-me", "ranking", "m-dept", "m-record", "p-depts", "p-member", "p-record", "contact", "projects", "p-qa", "m-attend", "m-fees", "p-videos", "p-projects"];
 function refresh(full) {
   if (!authState.ready || authBusy) return;
   paintAll();
