@@ -1,0 +1,23 @@
+/* ===== Panel dropdown menu ===== */
+.dd{position:relative}
+.ddb{display:flex;align-items:center;justify-content:space-between;gap:6px;width:100%;padding:10.6px 0;background:none;border:0;border-bottom:1px solid var(--line);color:var(--ink);font:inherit;cursor:pointer;text-align:left}
+.ddb svg{transition:transform .25s}.dd.open .ddb svg{transform:rotate(180deg)}.dd.open .ddb,.ddb.on{color:var(--c1);font-weight:700}
+.ddm{display:none}.dd.open .ddm{display:grid}
+nav#nav .ddm a{padding:9px 0 9px 16px;text-decoration:none;border-bottom:1px solid var(--line);color:var(--ink)}
+@media(min-width:800px){
+  .ddb{width:auto;border:0;padding:3.5px 0;font-size:12.3px}
+  .ddm{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);min-width:190px;background:#101a3c;border:1px solid var(--line);border-radius:16px;padding:6px;box-shadow:0 18px 40px #000a;z-index:9}
+  nav#nav .ddm a{padding:10px 14px;border:0;border-radius:11px;font-size:13px;white-space:nowrap}
+  nav#nav .ddm a:hover{background:#1b2a55}
+}
+
+/* ===== Panel pages: big cards ===== */
+.pgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
+.pcard{background:linear-gradient(160deg,#16244f,#101a3c);border:1px solid var(--line);border-radius:28px;padding:30px 18px 28px;text-align:center;box-shadow:0 14px 36px #0006;animation:up .6s cubic-bezier(.22,.8,.3,1) both}
+.pcard .pop{margin:0 auto 18px;max-width:100%}
+.pcard h3{font-size:22px;text-transform:uppercase;letter-spacing:.02em;margin-bottom:12px}
+.pcard .role{display:inline-block;padding:7px 18px;border-radius:14px;background:#6fd8ea26;border:1px solid #6fd8ea66;color:#7ff0ff;font:700 14px Manrope,sans-serif;letter-spacing:.08em;text-transform:uppercase;text-shadow:0 0 12px #6fd8ea88}
+.pcard .term{display:block;margin-top:10px;color:#c9b4ff;font-size:13px}
+.pgrid.old .pcard{opacity:.92}
+@media(min-width:700px){.pgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1000px){.pgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
