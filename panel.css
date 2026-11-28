@@ -21,3 +21,9 @@ nav#nav .ddm a{padding:9px 0 9px 16px;text-decoration:none;border-bottom:1px sol
 .pgrid.old .pcard{opacity:.92}
 @media(min-width:700px){.pgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(min-width:1000px){.pgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.opts{display:grid;gap:12px;margin:14px 0}
+.opt{display:flex;align-items:center;gap:12px;padding:16px;border:1px solid var(--line);border-radius:16px;background:#101a3c;color:var(--ink);font:inherit;cursor:pointer;text-align:left}
+.opt i{width:18px;height:18px;border-radius:50%;border:2px solid var(--line)}
+.opt.on{background:linear-gradient(135deg,#7fe3f0,#b58cf0);color:#0b1230;font-weight:700}.opt.on i{background:#0b1230;border-color:#0b1230}
+.jcard{background:linear-gradient(160deg,#16244f,#101a3c);border:1px solid var(--line);border-radius:22px;padding:20px;margin:14px 0}.jcard h3{margin-bottom:10px}.jcard ol{padding-left:20px;display:grid;gap:6px}
+.jbtn{margin:10px 0 24px;padding:16px 34px;font-size:17px;box-shadow:0 10px 30px #7fe3f044}
