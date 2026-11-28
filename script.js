@@ -234,6 +234,18 @@ R.register = pg => {
     setTimeout(() => { authBusy = false; }, 900);
   };
 };
+// ===== Join SSACITC =====
+const JT={m:{n:"Member",b:[["Why you will be a member",["Learn coding, design and online safety with friends","Build real projects and show them on this site","Join workshops, contests and tech events"]],["How you can be a member",["Register online with your ID number","The panelists check your request","Log in to read club notices","Join sessions and keep learning"]],["Responsibilities",["Follow the club rules and respect everyone","Join sessions when you can","Use technology safely and honestly"]],["Benefits",["Certificates and recognition","A place on the club ranking","New friends and mentors"]]]}};
+R.joinus=pg=>{
+  const k=pg.dataset.k||"m",t=JT[k];
+  pg.innerHTML=`<header class="ph"><h2>Join SSACITC</h2><p class="lead">You want to be</p></header>
+  <div class="opts">${Object.keys(JT).map(x=>`<button type="button" class="opt ${x===k?"on":""}" data-k="${x}"><i></i>${JT[x].n}</button>`).join("")}</div>
+  ${t.b.map(b=>`<div class="jcard"><h3>${b[0]}</h3><ol>${b[1].map(x=>`<li>${x}</li>`).join("")}</ol></div>`).join("")}
+  <button type="button" class="btn primary jbtn" id="jgo">Join as ${t.n} <span data-ic="arrow"></span></button>`;
+  $$("[data-ic]",pg).forEach(el=>el.innerHTML=ic(el.dataset.ic));
+  $$(".opt",pg).forEach(b=>b.onclick=()=>{pg.dataset.k=b.dataset.k;R.joinus(pg);});
+  $("#jgo",pg).onclick=()=>go("register");
+};
 let loginMode = "login";
 R.login = pg => {
   loginMode = "login";
@@ -806,7 +818,7 @@ function route() {
   const pend = members().filter(m => m.status === "pending").length;
   $("#kebab").hidden = !app; $("#kmenu").hidden = true;
   if (app) $("#kmenu").innerHTML = menuFor(s.role).map(b => `<a href="#${b[0]}" class="${b[0] === id ? "on" : ""}">${b[1]}${b[0] === "p-requests" && pend ? `<b>${pend}</b>` : ""}</a>`).join("") + `<button id="kout">Log out</button>`;
-  $("#acts").innerHTML = s ? `<a href="#${s.role}-home">My account</a>` : (regOpen() ? `<a href="#register">Registration</a>` : "") + `<a href="#login">Log in</a>`;
+  $("#acts").innerHTML = s ? `<a href="#${s.role}-home">My account</a>` : (regOpen() ? `<a href="#joinus">Join SSACITC</a>` : "") + `<a href="#login">Log in</a>`;
   $$("#nav a").forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + id));
   $("#dd").classList.remove("open"); $("#ddb").setAttribute("aria-expanded", "false");
   $("#ddb").classList.toggle("on", ["teachers", "executive", "organizing"].includes(id));
@@ -824,7 +836,7 @@ let unsubs = [];
 const sub = (k, q) => unsubs.push(onSnapshot(q, snap => { cache[k] = snap.docs.map(d => ({ ...d.data(), id: d.id })); refresh(); }, e => console.warn(k, e.code)));
 const subStaff = () => { sub("members", collection(fs, "members")); if (can("members")) sub("roster", collection(fs, "roster")); sub("notices", collection(fs, "notices")); sub("formal", collection(fs, "formal")); sub("notifs", query(collection(fs, "notifs"), where("to", "==", "p"))); sub("records", collection(fs, "records")); sub("dposts", collection(fs, "dposts")); if (can("qa")) sub("qall", collection(fs, "questions")); };
 PUB.forEach(k => onSnapshot(k === "qa" ? query(collection(fs, "questions"), where("answered", "==", true)) : collection(fs, k), snap => { cache[k] = snap.docs.map(d => ({ ...d.data(), id: d.id })); if (k === "settings") { const a = $("main>section.active"); if (a && a.id === "register" && regShown !== regOpen()) R.register(a); } refresh(); }, e => console.warn(k, e.code)));
-const LIVE = ["home", "teachers", "executive", "organizing", "gallery", "p-home", "m-home", "m-profile", "m-feed", "p-feed", "m-notices", "notices", "p-requests", "p-roster", "p-members", "p-me", "ranking", "m-dept", "m-record", "p-depts", "p-member", "p-record", "contact", "projects", "p-qa", "m-attend", "m-fees", "p-videos", "p-projects"];
+const LIVE = ["home", "teachers", "executive", "organizing", "gallery", "p-home", "m-home", "m-profile", "m-feed", "p-feed", "m-notices", "notices", "p-requests", "p-roster", "p-members", "p-me", "ranking", "m-dept", "m-record", "p-depts", "p-member", "p-record", "contact", "projects", "p-qa", "m-attend", "m-fees", "p-videos", "p-projects", "joinus"];
 function refresh(full) {
   if (!authState.ready || authBusy) return;
   paintAll();
